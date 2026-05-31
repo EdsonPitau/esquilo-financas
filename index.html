@@ -2,16 +2,35 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- ─── PWA & MOBILE META TAGS ─── -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Esquilo">
+<meta name="application-name" content="Esquilo Finanças">
+<meta name="theme-color" content="#052e16">
+<meta name="msapplication-TileColor" content="#052e16">
+<meta name="msapplication-TileImage" content="icons/icon-144x144.png">
+<!-- SEO -->
+<meta name="description" content="Gestão financeira pessoal inteligente. Controle entradas, gastos fixos e variáveis com relatórios mensais e anuais.">
 <title>Esquilo Finanças 🐿️</title>
+<!-- PWA Manifest -->
+<link rel="manifest" href="manifest.json">
+<!-- Favicons -->
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+<!-- Apple Touch Icons -->
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152x152.png">
+<link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192x192.png">
+<!-- Splash screens iOS (aproximados) -->
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<!-- Scripts e Fontes -->
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="manifest" href="./manifest.json">
 
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="#052e16">
-<link rel="apple-touch-icon" href="./icon_esquilo.png">
 <style>
   /* ════════════════════════════════════════════════════════════
      PALETA ESQUILO FINANÇAS — Esmeralda, Grafite & Dourado
@@ -438,11 +457,139 @@
   }
   .mascote-bounce { animation: bounce 0.6s ease; }
 
-  /* ─── RESPONSIVO ─── */
+  /* ─── ANIMAÇÕES ─── */
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  tr.new-row { animation: slideIn 0.3s ease; }
+
+  @keyframes bounce {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(-8px); }
+  }
+  .mascote-bounce { animation: bounce 0.6s ease; }
+
+  /* ════════════════════════════════════════════════
+     MOBILE-FIRST — Layout de abas para celular
+  ════════════════════════════════════════════════ */
+
+  /* Safe area para notch / barra de status iOS */
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* ── BARRA DE ABAS MOBILE ── */
+  .mobile-tab-bar {
+    display: none; /* escondido no desktop */
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--emerald-950);
+    border-top: 2px solid var(--gold-500);
+    padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+    z-index: 200;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+  }
+  .tab-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    background: none; border: none; cursor: pointer;
+    color: var(--emerald-200); padding: 4px 0;
+    font-family: 'DM Sans', sans-serif; font-size: 0.6rem; font-weight: 600;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .tab-btn .tab-icon { font-size: 1.3rem; line-height: 1; }
+  .tab-btn.active   { color: var(--gold-300); }
+  .tab-btn.active .tab-icon { transform: scale(1.15); }
+
+  /* Painel de conteúdo das abas mobile */
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* ── RESPONSIVO TABLET (≤ 900px) ── */
   @media (max-width: 900px) {
     .main-grid { grid-template-columns: 1fr; height: auto; }
-    .left-panel { height: auto; padding: 20px; }
+    .left-panel { height: auto; padding: 20px; border-right: none; border-bottom: 3px solid var(--emerald-800); }
     .var-layout  { grid-template-columns: 1fr; }
+  }
+
+  /* ── RESPONSIVO MOBILE (≤ 600px) ── */
+  @media (max-width: 600px) {
+    /* Esconde o layout de duas colunas e exibe abas */
+    .main-grid { display: block; height: auto; }
+    .left-panel { display: none; }  /* painel esquerdo fica na aba */
+    .right-panel { padding: 12px 12px calc(80px + env(safe-area-inset-bottom)); gap: 14px; }
+
+    /* Tab bar visível */
+    .mobile-tab-bar { display: grid; }
+
+    /* Header compacto */
+    .app-header { padding: 10px 14px; gap: 8px; }
+    .app-header h1 { font-size: 1.1rem; }
+    .header-tagline { display: none; }
+    .btn-relatorio { padding: 6px 10px; font-size: 0.7rem; }
+    .btn-relatorio span.rel-label { display: none; } /* só ícone no mobile */
+
+    /* Saldo card maior no mobile */
+    .saldo-value { font-size: 1.7rem; }
+    .mascote-svg { width: 120px; height: 120px; }
+    .mascote-status { font-size: 0.82rem; }
+
+    /* Resumo em 2x2 */
+    .resumo-grid { grid-template-columns: 1fr 1fr; }
+
+    /* Forms em coluna no mobile */
+    .form-row { flex-direction: column; gap: 10px; padding: 12px 14px; }
+    .form-group { width: 100% !important; min-width: unset !important; max-width: unset !important; flex: 1 1 auto !important; }
+    .btn-add { width: 100%; justify-content: center; padding: 11px; font-size: 0.9rem; }
+
+    /* Tabelas scrolláveis */
+    .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table { min-width: 420px; }
+
+    /* Section cards */
+    .section-card { border-radius: 12px; }
+    .section-header { padding: 12px 14px; }
+    .section-header h2 { font-size: 0.9rem; }
+    .section-total { font-size: 0.95rem; }
+
+    /* Var layout sem gráfico lateral */
+    .var-layout { grid-template-columns: 1fr; padding: 10px 12px 14px; gap: 12px; }
+    .bar-chart-panel { padding: 12px; }
+
+    /* Modal ocupa tela inteira no mobile */
+    .modal-overlay { padding: 0; align-items: flex-end; }
+    .modal-box {
+      border-radius: 20px 20px 0 0;
+      max-height: 92vh;
+      max-width: 100%;
+    }
+    .modal-header { padding: 14px 16px; border-radius: 17px 17px 0 0; }
+    .relatorio-controls { padding: 12px 14px; gap: 8px; }
+    .relatorio-controls select { font-size: 0.8rem; padding: 5px 8px; }
+    .btn-gerar { padding: 7px 14px; font-size: 0.8rem; }
+    .relatorio-body { padding: 14px 14px 24px; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .kpi-card { padding: 10px 8px; }
+    .kpi-card .kpi-value { font-size: 0.95rem; }
+    .rel-table { font-size: 0.76rem; }
+    .rel-table th, .rel-table td { padding: 6px 8px; }
+
+    /* Período selector */
+    .month-selector-row { gap: 6px; }
+    .sel-periodo { font-size: 0.9rem; padding: 5px 8px; }
+  }
+
+  /* Painel esquerdo como tab no mobile */
+  .mobile-dashboard-panel {
+    padding: 16px 14px calc(12px);
+    background: var(--emerald-950);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-height: calc(100vh - 57px - 70px);
   }
 
   /* ─── BOTÃO RELATÓRIO ─── */
@@ -643,13 +790,29 @@
 <header class="app-header">
   <span class="header-icon">🐿️</span>
   <h1>Esquilo Finanças</h1>
-  <div style="margin-left:auto;color:var(--gold-300);font-size:0.72rem;letter-spacing:0.1em;font-weight:600;text-transform:uppercase;">Gestão Financeira Pessoal</div>
+  <div class="header-tagline" style="margin-left:auto;color:var(--gold-300);font-size:0.72rem;letter-spacing:0.1em;font-weight:600;text-transform:uppercase;">Gestão Financeira Pessoal</div>
   <div style="margin-left:16px;">
     <button class="btn-relatorio" onclick="abrirRelatorio()">
-      📊 Gerar Relatório
+      <span>📊</span><span class="rel-label"> Gerar Relatório</span>
     </button>
   </div>
 </header>
+
+<!-- ─── BARRA DE ABAS MOBILE ─── -->
+<nav class="mobile-tab-bar" id="mobileTabBar">
+  <button class="tab-btn active" id="tabBtnDash" onclick="trocarAba('dashboard')">
+    <span class="tab-icon">🐿️</span>Resumo
+  </button>
+  <button class="tab-btn" id="tabBtnEnt" onclick="trocarAba('entradas')">
+    <span class="tab-icon">💰</span>Entradas
+  </button>
+  <button class="tab-btn" id="tabBtnFix" onclick="trocarAba('fixos')">
+    <span class="tab-icon">🏠</span>Fixos
+  </button>
+  <button class="tab-btn" id="tabBtnVar" onclick="trocarAba('variaveis')">
+    <span class="tab-icon">🛒</span>Variáveis
+  </button>
+</nav>
 
 <!-- ═══════════════════════════════════════════
      MODAL — RELATÓRIO FINANCEIRO
@@ -699,6 +862,58 @@
 </div>
 
 <!-- ─── MAIN ─── -->
+
+<!-- MOBILE: Painel Dashboard (aba Resumo) — visível apenas no mobile via JS -->
+<div id="tabDashboard" class="tab-pane active">
+  <div class="mobile-dashboard-panel" style="display:none" id="mobileDashPanel">
+    <!-- Seletor dinâmico de Mês e Ano (mobile) -->
+    <div>
+      <div class="month-badge">🗓 Competência</div>
+      <div class="month-selector-row">
+        <select id="selMesMobile" class="sel-periodo" onchange="sincronizarPeriodo('mobile')">
+          <option value="0">Janeiro</option><option value="1">Fevereiro</option>
+          <option value="2">Março</option><option value="3">Abril</option>
+          <option value="4">Maio</option><option value="5">Junho</option>
+          <option value="6">Julho</option><option value="7">Agosto</option>
+          <option value="8">Setembro</option><option value="9">Outubro</option>
+          <option value="10">Novembro</option><option value="11">Dezembro</option>
+        </select>
+        <select id="selAnoMobile" class="sel-periodo" onchange="sincronizarPeriodo('mobile')">
+          <option value="2025">2025</option><option value="2026">2026</option>
+          <option value="2027">2027</option><option value="2028">2028</option>
+          <option value="2029">2029</option><option value="2030">2030</option>
+        </select>
+      </div>
+    </div>
+    <!-- Card Saldo mobile -->
+    <div class="saldo-card estado-neutro" id="saldoCardMobile">
+      <div class="saldo-label">⬡ Saldo Real da Reserva</div>
+      <div class="saldo-value neutro" id="saldoValorMobile">R$ 0,00</div>
+    </div>
+    <!-- Mascote mobile -->
+    <div class="mascote-container">
+      <div id="mascoteSvgMobile" class="mascote-svg"></div>
+      <div class="mascote-status" id="mascoteStatusMobile">Insira seus lançamentos para ativar a reserva do Esquilo!</div>
+    </div>
+    <!-- Resumo mobile -->
+    <div class="resumo-grid">
+      <div class="resumo-item"><div class="label">↑ Entradas</div><div class="val positive" id="resEntradasMobile">R$ 0,00</div></div>
+      <div class="resumo-item"><div class="label">↓ Saídas</div><div class="val negative" id="resSaidasMobile">R$ 0,00</div></div>
+      <div class="resumo-item"><div class="label">⚙ Fixos pagos</div><div class="val warn" id="resFixosPagosMobile">R$ 0,00</div></div>
+      <div class="resumo-item"><div class="label">📊 Projetado</div><div class="val" id="resProjetadoMobile">R$ 0,00</div></div>
+    </div>
+    <!-- Donut mobile -->
+    <div class="donut-wrapper">
+      <h3>Entradas vs Saídas</h3>
+      <canvas id="donutChartMobile"></canvas>
+    </div>
+    <!-- Botão relatório no dashboard mobile -->
+    <button class="btn-relatorio" onclick="abrirRelatorio()" style="width:100%;justify-content:center;padding:12px;font-size:0.9rem;border-radius:10px;">
+      📊 Gerar Relatório do Mês
+    </button>
+  </div>
+</div>
+
 <div class="main-grid">
 
   <!-- ══════════════ PAINEL ESQUERDO ══════════════ -->
@@ -1194,33 +1409,39 @@ function atualizarMascote(totais) {
   void svgEl.offsetWidth;
   svgEl.classList.add('mascote-bounce');
 
+  let svgFn, statusTxt, estadoClass, valorClass;
+
   // Estado inicial — sem dados
   if (totalEntradas === 0 && saldoReal === 0) {
     card.classList.add('estado-neutro');
     valor.classList.add('neutro');
     svgEl.innerHTML = svgNeutro();
     status.innerHTML = 'Insira seus lançamentos<br>para ativar a reserva do Esquilo!';
+    atualizarPainelMobile(totais, svgNeutro, 'Insira seus lançamentos<br>para ativar a reserva do Esquilo!', 'estado-neutro', 'neutro');
     return;
   }
 
   if (saldoReal < 0) {
-    // Saldo negativo — despesas superaram ganhos
     card.classList.add('estado-triste');
     valor.classList.add('triste');
     svgEl.innerHTML = svgTriste();
-    status.innerHTML = '😢 O inverno chegou! Suas despesas superaram os ganhos e o estoque acabou.';
+    statusTxt = '😢 O inverno chegou! Suas despesas superaram os ganhos e o estoque acabou.';
+    status.innerHTML = statusTxt;
+    atualizarPainelMobile(totais, svgTriste, statusTxt, 'estado-triste', 'triste');
   } else if (saldoReal <= 0.10 * totalEntradas) {
-    // Saldo apertado — consumiu mais de 90% da renda
     card.classList.add('estado-preocupada');
     valor.classList.add('preocupada');
     svgEl.innerHTML = svgPreocupada();
-    status.innerHTML = '😰 Alerta de Escassez! Você já comprometeu mais de 90% dos seus recursos brutos.';
+    statusTxt = '😰 Alerta de Escassez! Você já comprometeu mais de 90% dos seus recursos brutos.';
+    status.innerHTML = statusTxt;
+    atualizarPainelMobile(totais, svgPreocupada, statusTxt, 'estado-preocupada', 'preocupada');
   } else {
-    // Boa saúde financeira
     card.classList.add('estado-feliz');
     valor.classList.add('feliz');
     svgEl.innerHTML = svgFeliz();
-    status.innerHTML = '💰 Estoque Garantido! Seus investimentos e economias estão protegidos e crescendo.';
+    statusTxt = '💰 Estoque Garantido! Seus investimentos e economias estão protegidos e crescendo.';
+    status.innerHTML = statusTxt;
+    atualizarPainelMobile(totais, svgFeliz, statusTxt, 'estado-feliz', 'feliz');
   }
 }
 
@@ -1865,7 +2086,161 @@ function gerarRelatorioAnual(ano) {
 /** Retorna o percentual numérico (sem o %) para uso em barras */
 function pctNum(v, t) { return t > 0 ? (v / t) * 100 : 0; }
 
-// ─── ATALHO ENTER ────────────────────────────────────────────
+// ─── MOBILE: SISTEMA DE ABAS ─────────────────────────────────
+
+let donutChartMobile = null;
+let abaAtiva = 'dashboard';
+const isMobile = () => window.innerWidth <= 600;
+
+/**
+ * Troca a aba ativa na navegação mobile.
+ * No desktop não faz nada visualmente (layout já é em grid).
+ */
+function trocarAba(aba) {
+  abaAtiva = aba;
+  const paineis = {
+    dashboard: document.getElementById('mobileDashPanel'),
+    entradas:  document.getElementById('cardEntradas'),
+    fixos:     document.getElementById('cardFixos'),
+    variaveis: document.getElementById('cardVariaveis'),
+  };
+  const botoes = {
+    dashboard: document.getElementById('tabBtnDash'),
+    entradas:  document.getElementById('tabBtnEnt'),
+    fixos:     document.getElementById('tabBtnFix'),
+    variaveis: document.getElementById('tabBtnVar'),
+  };
+
+  if (!isMobile()) return;
+
+  // Esconde todos os section-cards e mostra só o da aba
+  ['cardEntradas','cardFixos','cardVariaveis'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+  document.getElementById('mobileDashPanel').style.display = 'none';
+
+  // Ativa aba selecionada
+  if (aba === 'dashboard') {
+    document.getElementById('mobileDashPanel').style.display = 'flex';
+  } else {
+    document.getElementById(`card${aba.charAt(0).toUpperCase() + aba.slice(1)}`).style.display = 'block';
+  }
+
+  // Atualiza botões
+  Object.entries(botoes).forEach(([k, btn]) => {
+    btn.classList.toggle('active', k === aba);
+  });
+}
+
+/** Aplica o layout mobile ao carregar/redimensionar */
+function aplicarLayoutMobile() {
+  if (isMobile()) {
+    trocarAba(abaAtiva);
+  } else {
+    // Desktop: restaura tudo visível
+    ['cardEntradas','cardFixos','cardVariaveis'].forEach(id => {
+      document.getElementById(id).style.display = 'block';
+    });
+    document.getElementById('mobileDashPanel').style.display = 'none';
+  }
+}
+
+window.addEventListener('resize', aplicarLayoutMobile);
+
+/**
+ * Sincroniza o seletor de período entre o painel desktop e mobile.
+ * origem: 'desktop' | 'mobile'
+ */
+function sincronizarPeriodo(origem) {
+  if (origem === 'mobile') {
+    document.getElementById('selMes').value = document.getElementById('selMesMobile').value;
+    document.getElementById('selAno').value = document.getElementById('selAnoMobile').value;
+  } else {
+    document.getElementById('selMesMobile').value = document.getElementById('selMes').value;
+    document.getElementById('selAnoMobile').value = document.getElementById('selAno').value;
+  }
+  carregarStorage();
+  renderTudo();
+}
+
+// ─── MOBILE: ATUALIZA PAINEL DASHBOARD ESPELHADO ─────────────
+
+let donutMobileInstance = null;
+
+function atualizarPainelMobile(t, svgFn, statusTxt, estadoClass, valorClass) {
+  // Sincroniza saldo
+  const vm = document.getElementById('saldoValorMobile');
+  if (vm) {
+    vm.textContent = fmt(t.saldoReal);
+    vm.className = `saldo-value ${valorClass}`;
+  }
+  const cm = document.getElementById('saldoCardMobile');
+  if (cm) { cm.className = `saldo-card ${estadoClass}`; }
+
+  // Mascote mobile
+  const sm = document.getElementById('mascoteSvgMobile');
+  if (sm) {
+    sm.classList.remove('mascote-bounce');
+    void sm.offsetWidth;
+    sm.classList.add('mascote-bounce');
+    sm.innerHTML = svgFn();
+  }
+  document.getElementById('mascoteStatusMobile').innerHTML = statusTxt;
+
+  // Resumo mobile
+  const set = (id, val, cls) => {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = fmt(val); if (cls) el.className = `val ${cls}`; }
+  };
+  set('resEntradasMobile',   t.totalEntradas, 'positive');
+  set('resSaidasMobile',     t.totalSaidas,   'negative');
+  set('resFixosPagosMobile', t.fixosPagos,    'warn');
+  const pm = document.getElementById('resProjetadoMobile');
+  if (pm) { pm.textContent = fmt(t.saldoProjetado); pm.className = `val ${t.saldoProjetado >= 0 ? 'positive' : 'negative'}`; }
+
+  // Donut mobile
+  const donutCtxM = document.getElementById('donutChartMobile');
+  if (!donutCtxM) return;
+  const ctx = donutCtxM.getContext('2d');
+  const isVazio = t.totalEntradas === 0 && t.totalSaidas === 0;
+  const data = {
+    labels: isVazio ? ['Sem dados'] : ['Entradas', 'Saídas'],
+    datasets: [{
+      data: isVazio ? [1, 0] : [t.totalEntradas, t.totalSaidas],
+      backgroundColor: isVazio ? ['rgba(148,163,184,0.22)', 'transparent'] : ['rgba(52,211,153,0.80)', 'rgba(248,113,113,0.80)'],
+      borderColor: isVazio ? ['rgba(148,163,184,0.40)', 'transparent'] : ['#059669', '#dc2626'],
+      borderWidth: isVazio ? 1 : 2,
+    }]
+  };
+  if (donutMobileInstance) { donutMobileInstance.data = data; donutMobileInstance.update(); }
+  else {
+    donutMobileInstance = new Chart(ctx, {
+      type: 'doughnut', data,
+      options: { responsive: true, plugins: {
+        legend: { position: 'bottom', labels: { color: '#a7f3d0', font: { size: 11 }, boxWidth: 12 } },
+        tooltip: { callbacks: { label: c => isVazio ? 'Sem registros' : fmt(c.parsed) } }
+      }, cutout: '65%' }
+    });
+  }
+}
+
+// ─── PWA: SERVICE WORKER ─────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('[PWA] Service Worker registrado:', reg.scope))
+      .catch(err => console.warn('[PWA] SW não registrado:', err));
+  });
+}
+
+// Prompt de instalação do PWA
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  // Mostra botão de instalação se quiser (opcional — comentado por padrão)
+  // document.getElementById('btnInstalar')?.style.setProperty('display','flex');
+});
 document.querySelectorAll('#cardEntradas input, #cardEntradas select').forEach(el => {
   el.addEventListener('keydown', e => { if (e.key === 'Enter') adicionarEntrada(); });
 });
@@ -1885,13 +2260,23 @@ document.addEventListener('keydown', e => {
 inicializarSeletores();
 carregarStorage();
 renderTudo();
-</script>
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js')
-      .then(() => console.log('Esquilo Finanças pronto para uso offline!'))
-      .catch((err) => console.log('Erro ao registrar Service Worker:', err));
-  }
+
+// Sincroniza seletores mobile com o período inicial
+document.addEventListener('DOMContentLoaded', () => {
+  const m = document.getElementById('selMes').value;
+  const a = document.getElementById('selAno').value;
+  const sm = document.getElementById('selMesMobile');
+  const sa = document.getElementById('selAnoMobile');
+  if (sm) sm.value = m;
+  if (sa) sa.value = a;
+  aplicarLayoutMobile();
+});
+// Fallback para quando DOMContentLoaded já passou
+const sm = document.getElementById('selMesMobile');
+const sa = document.getElementById('selAnoMobile');
+if (sm) sm.value = document.getElementById('selMes').value;
+if (sa) sa.value = document.getElementById('selAno').value;
+aplicarLayoutMobile();
 </script>
 </body>
 </html>
