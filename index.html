@@ -1,0 +1,1893 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Esquilo Finanças 🐿️</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  /* ════════════════════════════════════════════════════════════
+     PALETA ESQUILO FINANÇAS — Esmeralda, Grafite & Dourado
+  ════════════════════════════════════════════════════════════ */
+  :root {
+    /* Verdes Esmeralda */
+    --emerald-950: #052e16;
+    --emerald-900: #064e3b;
+    --emerald-800: #065f46;
+    --emerald-700: #047857;
+    --emerald-600: #059669;
+    --emerald-500: #10b981;
+    --emerald-200: #a7f3d0;
+    --emerald-100: #d1fae5;
+    --emerald-50:  #ecfdf5;
+    /* Dourado */
+    --gold-500:    #b8860b;
+    --gold-400:    #d4a017;
+    --gold-300:    #e2b93b;
+    --gold-200:    #f0d080;
+    /* Grafite / Slate */
+    --slate-900:   #0f172a;
+    --slate-800:   #1e293b;
+    --slate-700:   #334155;
+    --slate-600:   #475569;
+    --slate-400:   #94a3b8;
+    --slate-200:   #e2e8f0;
+    --slate-100:   #f1f5f9;
+    --slate-50:    #f8fafc;
+    /* Canvas */
+    --bg-canvas:   #f4f7f5;
+    /* Semânticas */
+    --green-soft:  #059669;
+    --red-soft:    #dc2626;
+    --orange:      #d97706;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg-canvas);
+    color: var(--slate-900);
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse at 8% 0%,  rgba(5,150,105,0.10) 0%, transparent 50%),
+      radial-gradient(ellipse at 92% 100%, rgba(180,134,11,0.07) 0%, transparent 50%);
+  }
+
+  h1, h2, h3, .font-display { font-family: 'Fraunces', serif; }
+
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--emerald-50); }
+  ::-webkit-scrollbar-thumb { background: var(--emerald-700); border-radius: 3px; }
+
+  /* ─── HEADER ─── */
+  .app-header {
+    background: var(--emerald-950);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 3px solid var(--gold-500);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .app-header h1 { color: var(--emerald-100); font-size: 1.5rem; letter-spacing: -0.02em; }
+  .app-header .header-icon { color: var(--gold-300); font-size: 1.4rem; }
+
+  /* ─── MAIN LAYOUT ─── */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 0;
+    height: calc(100vh - 57px);
+  }
+
+  /* ─── LEFT PANEL ─── */
+  .left-panel {
+    background: var(--emerald-950);
+    padding: 28px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow-y: auto;
+    border-right: 3px solid var(--emerald-800);
+  }
+
+  /* Decoração dourada no painel esquerdo */
+  .left-panel::before {
+    content: '';
+    display: block;
+    position: sticky;
+    top: -28px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold-400), transparent);
+    margin: -28px -20px 0;
+    opacity: 0.6;
+    flex-shrink: 0;
+  }
+
+  .month-badge {
+    text-align: center;
+    color: var(--gold-300);
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  /* ─── SALDO CARD ─── */
+  .saldo-card {
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    transition: background 0.5s ease, box-shadow 0.5s ease, border-color 0.5s ease;
+    border: 1.5px solid rgba(255,255,255,0.08);
+  }
+  .saldo-card.estado-feliz {
+    background: rgba(16,185,129,0.15);
+    border-color: rgba(16,185,129,0.45);
+    box-shadow: 0 0 24px rgba(16,185,129,0.12);
+  }
+  .saldo-card.estado-triste {
+    background: rgba(239,68,68,0.15);
+    border-color: rgba(239,68,68,0.45);
+    box-shadow: 0 0 24px rgba(239,68,68,0.10);
+  }
+  .saldo-card.estado-preocupada {
+    background: rgba(245,158,11,0.15);
+    border-color: rgba(245,158,11,0.45);
+    box-shadow: 0 0 24px rgba(245,158,11,0.10);
+  }
+  .saldo-card.estado-neutro {
+    background: rgba(148,163,184,0.15);
+    border-color: rgba(148,163,184,0.30);
+  }
+
+  .saldo-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--gold-300);
+    margin-bottom: 6px;
+  }
+  .saldo-value {
+    font-family: 'Fraunces', serif;
+    font-size: 2rem;
+    font-weight: 900;
+    transition: color 0.5s;
+    line-height: 1.1;
+  }
+  .saldo-value.feliz      { color: #34d399; }
+  .saldo-value.triste     { color: #f87171; }
+  .saldo-value.preocupada { color: #fbbf24; }
+  .saldo-value.neutro     { color: var(--slate-400); }
+
+  /* ─── MASCOTE ─── */
+  .mascote-container { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .mascote-svg {
+    width: 148px; height: 148px;
+    filter: drop-shadow(0 4px 14px rgba(0,0,0,0.45));
+    transition: all 0.6s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .mascote-svg:hover { transform: scale(1.06) rotate(-2deg); }
+  .mascote-status {
+    font-family: 'Fraunces', serif;
+    font-size: 0.9rem;
+    text-align: center;
+    color: var(--emerald-200);
+    font-style: italic;
+    line-height: 1.35;
+  }
+
+  /* ─── RESUMO GRID ─── */
+  .resumo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .resumo-item {
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
+    padding: 12px;
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+  .resumo-item .label {
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold-300);
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+  .resumo-item .val {
+    font-family: 'Fraunces', serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--emerald-100);
+  }
+  .resumo-item .val.positive { color: #34d399; }
+  .resumo-item .val.negative { color: #f87171; }
+  .resumo-item .val.warn     { color: #fbbf24; }
+
+  /* ─── DONUT WRAPPER ─── */
+  .donut-wrapper {
+    background: rgba(255,255,255,0.03);
+    border-radius: 12px;
+    padding: 14px;
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+  .donut-wrapper h3 {
+    color: var(--gold-300);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  #donutChart { max-height: 160px; }
+
+  /* ─── RIGHT PANEL ─── */
+  .right-panel {
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    background: var(--bg-canvas);
+  }
+
+  /* ─── SECTION CARD ─── */
+  .section-card {
+    background: #fff;
+    border-radius: 16px;
+    border: 1.5px solid var(--slate-200);
+    overflow: hidden;
+    box-shadow: 0 2px 16px rgba(6,78,59,0.07);
+  }
+  .section-header {
+    background: var(--emerald-900);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid var(--gold-500);
+  }
+  .section-header h2 {
+    color: var(--emerald-100);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-total {
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--gold-300);
+  }
+  .section-total.positive { color: #34d399; }
+  .section-total.negative { color: #f87171; }
+
+  /* ─── FORMS ─── */
+  .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 14px 20px;
+    background: var(--slate-50);
+    border-bottom: 1px solid var(--slate-200);
+    align-items: flex-end;
+  }
+  .form-group { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 100px; }
+  .form-group label {
+    font-size: 0.64rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--emerald-700);
+  }
+  .form-group input,
+  .form-group select {
+    border: 1.5px solid var(--slate-200);
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 0.85rem;
+    font-family: 'DM Sans', sans-serif;
+    background: #fff;
+    color: var(--slate-900);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+  .form-group input:focus,
+  .form-group select:focus {
+    border-color: var(--emerald-600);
+    box-shadow: 0 0 0 3px rgba(5,150,105,0.12);
+  }
+
+  .btn-add {
+    background: var(--emerald-700);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 18px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+    white-space: nowrap;
+    align-self: flex-end;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .btn-add:hover  { background: var(--emerald-600); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(5,150,105,0.25); }
+  .btn-add:active { transform: translateY(0); box-shadow: none; }
+
+  /* ─── TABLES ─── */
+  .table-wrapper { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  th {
+    background: var(--slate-100);
+    color: var(--emerald-800);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    padding: 9px 14px;
+    text-align: left;
+    white-space: nowrap;
+  }
+  td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--slate-100);
+    vertical-align: middle;
+    color: var(--slate-800);
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--emerald-50); }
+
+  /* ─── STATUS TOGGLE ─── */
+  .status-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px 3px 8px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1.5px solid;
+    transition: all 0.2s;
+    white-space: nowrap;
+    user-select: none;
+  }
+  .status-toggle.pago,
+  .status-toggle.recebido {
+    background: rgba(5,150,105,0.10);
+    color: #047857;
+    border-color: rgba(5,150,105,0.40);
+  }
+  .status-toggle.nao-pago,
+  .status-toggle.pendente {
+    background: rgba(220,38,38,0.08);
+    color: #b91c1c;
+    border-color: rgba(220,38,38,0.30);
+  }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+  /* ─── DELETE BTN ─── */
+  .btn-del {
+    background: none; border: none; cursor: pointer;
+    color: var(--slate-400); font-size: 1rem; padding: 2px 4px;
+    border-radius: 4px; transition: color 0.2s, background 0.2s; line-height: 1;
+  }
+  .btn-del:hover { color: var(--red-soft); background: rgba(220,38,38,0.08); }
+
+  /* ─── VAR LAYOUT ─── */
+  .var-layout {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 16px;
+    padding: 16px 20px 20px;
+    align-items: start;
+  }
+  .bar-chart-panel {
+    background: var(--slate-50);
+    border-radius: 12px;
+    border: 1.5px solid var(--slate-200);
+    padding: 14px;
+  }
+  .bar-chart-panel h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 0.78rem;
+    color: var(--emerald-800);
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  #barChart { max-height: 220px; }
+
+  /* ─── VALORES ─── */
+  .valor-positivo { color: var(--green-soft); font-weight: 600; }
+  .valor-negativo { color: var(--red-soft);  font-weight: 600; }
+
+  /* ─── EMPTY STATE ─── */
+  .empty-row td {
+    text-align: center; color: var(--slate-400);
+    font-style: italic; padding: 20px; font-size: 0.8rem;
+  }
+
+  /* ─── ANIMAÇÕES ─── */
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  tr.new-row { animation: slideIn 0.3s ease; }
+
+  @keyframes bounce {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(-8px); }
+  }
+  .mascote-bounce { animation: bounce 0.6s ease; }
+
+  /* ─── RESPONSIVO ─── */
+  @media (max-width: 900px) {
+    .main-grid { grid-template-columns: 1fr; height: auto; }
+    .left-panel { height: auto; padding: 20px; }
+    .var-layout  { grid-template-columns: 1fr; }
+  }
+
+  /* ─── BOTÃO RELATÓRIO ─── */
+  .btn-relatorio {
+    background: linear-gradient(135deg, var(--gold-500), var(--gold-400));
+    color: var(--emerald-950);
+    border: none;
+    border-radius: 8px;
+    padding: 7px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+    white-space: nowrap;
+    letter-spacing: 0.03em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 8px rgba(184,134,11,0.35);
+  }
+  .btn-relatorio:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(184,134,11,0.45); }
+  .btn-relatorio:active { transform: translateY(0); }
+
+  /* ─── MODAL RELATÓRIO ─── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(5,46,22,0.72);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal-box {
+    background: #fff;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 760px;
+    max-height: 88vh;
+    overflow-y: auto;
+    box-shadow: 0 24px 64px rgba(5,46,22,0.35), 0 0 0 1px rgba(5,150,105,0.15);
+    transform: translateY(16px) scale(0.98);
+    transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .modal-overlay.open .modal-box { transform: translateY(0) scale(1); }
+
+  .modal-header {
+    background: var(--emerald-900);
+    border-bottom: 3px solid var(--gold-500);
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 17px 17px 0 0;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .modal-header h2 { color: var(--emerald-100); font-size: 1.15rem; display: flex; align-items: center; gap: 8px; }
+  .modal-header .modal-subtitle { color: var(--gold-300); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px; }
+
+  .btn-modal-close {
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+    color: var(--emerald-200); border-radius: 8px; padding: 6px 12px;
+    cursor: pointer; font-size: 0.82rem; font-family: 'DM Sans', sans-serif;
+    transition: background 0.2s;
+  }
+  .btn-modal-close:hover { background: rgba(255,255,255,0.18); }
+
+  /* Controles do relatório */
+  .relatorio-controls {
+    display: flex; gap: 10px; padding: 16px 24px;
+    background: var(--slate-50); border-bottom: 1px solid var(--slate-200);
+    align-items: center; flex-wrap: wrap;
+  }
+  .relatorio-controls label {
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--emerald-700);
+  }
+  .relatorio-controls select {
+    border: 1.5px solid var(--slate-200); border-radius: 8px;
+    padding: 6px 10px; font-size: 0.85rem;
+    font-family: 'DM Sans', sans-serif; color: var(--slate-900);
+    background: #fff; outline: none; cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .relatorio-controls select:focus { border-color: var(--emerald-600); }
+  .btn-gerar {
+    background: var(--emerald-700); color: #fff; border: none;
+    border-radius: 8px; padding: 7px 18px; font-family: 'DM Sans', sans-serif;
+    font-weight: 600; font-size: 0.84rem; cursor: pointer;
+    transition: background 0.2s; margin-left: auto;
+  }
+  .btn-gerar:hover { background: var(--emerald-600); }
+
+  /* Corpo do relatório */
+  .relatorio-body { padding: 20px 24px 28px; }
+
+  /* KPI cards */
+  .kpi-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 12px; margin-bottom: 24px;
+  }
+  @media (max-width: 600px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+  .kpi-card {
+    background: var(--slate-50); border-radius: 12px;
+    border: 1.5px solid var(--slate-200); padding: 14px 12px; text-align: center;
+  }
+  .kpi-card .kpi-label {
+    font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--emerald-700); margin-bottom: 6px;
+  }
+  .kpi-card .kpi-value {
+    font-family: 'Fraunces', serif; font-size: 1.15rem; font-weight: 900;
+    line-height: 1.1;
+  }
+  .kpi-card .kpi-value.green  { color: var(--green-soft); }
+  .kpi-card .kpi-value.red    { color: var(--red-soft); }
+  .kpi-card .kpi-value.gold   { color: var(--gold-500); }
+  .kpi-card .kpi-value.slate  { color: var(--slate-700); }
+
+  /* Seções de detalhe */
+  .rel-section { margin-bottom: 22px; }
+  .rel-section h3 {
+    font-family: 'Fraunces', serif; font-size: 0.88rem; font-weight: 700;
+    color: var(--emerald-900); letter-spacing: 0.04em; text-transform: uppercase;
+    border-bottom: 2px solid var(--emerald-100); padding-bottom: 6px; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .rel-table { width: 100%; border-collapse: collapse; font-size: 0.81rem; }
+  .rel-table th {
+    background: var(--emerald-50); color: var(--emerald-800); font-weight: 700;
+    font-size: 0.67rem; letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 7px 12px; text-align: left;
+  }
+  .rel-table td { padding: 7px 12px; border-bottom: 1px solid var(--slate-100); color: var(--slate-800); }
+  .rel-table tr:last-child td { border-bottom: none; }
+  .rel-table tr:hover td { background: var(--emerald-50); }
+  .rel-table td.val-pos { color: var(--green-soft); font-weight: 600; }
+  .rel-table td.val-neg { color: var(--red-soft); font-weight: 600; }
+  .rel-table td.val-gold { color: var(--gold-500); font-weight: 600; }
+  .rel-table .total-row td { background: var(--emerald-50); font-weight: 700; border-top: 2px solid var(--emerald-200); }
+
+  /* Barra de progresso */
+  .progress-bar-wrap { background: var(--slate-200); border-radius: 6px; height: 8px; margin-top: 4px; overflow: hidden; }
+  .progress-bar-fill { height: 8px; border-radius: 6px; transition: width 0.6s ease; }
+
+  /* Badge de situação */
+  .badge-situacao {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 700;
+  }
+  .badge-situacao.ok  { background: rgba(5,150,105,0.10); color: #047857; border: 1.5px solid rgba(5,150,105,0.3); }
+  .badge-situacao.warn { background: rgba(245,158,11,0.10); color: #b45309; border: 1.5px solid rgba(245,158,11,0.3); }
+  .badge-situacao.danger { background: rgba(220,38,38,0.10); color: #b91c1c; border: 1.5px solid rgba(220,38,38,0.3); }
+
+  .relatorio-empty {
+    text-align: center; padding: 40px 20px;
+    color: var(--slate-400); font-style: italic; font-size: 0.9rem;
+  }
+
+  /* ─── SELETOR DE PERÍODO ─── */
+  .month-selector-row { display: flex; gap: 8px; margin-top: 6px; justify-content: center; }
+  .sel-periodo {
+    background: rgba(255,255,255,0.06);
+    color: var(--emerald-100);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-family: 'Fraunces', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    -webkit-appearance: none;
+    text-align: center;
+  }
+  .sel-periodo:focus {
+    border-color: var(--gold-400);
+    background: rgba(255,255,255,0.10);
+  }
+  #selMes { flex: 1; min-width: 110px; }
+  #selAno { width: 78px; }
+
+  /* ─── ACCENT LINE em cards ─── */
+  .section-card { position: relative; }
+</style>
+</head>
+<body>
+
+<!-- ─── HEADER ─── -->
+<header class="app-header">
+  <span class="header-icon">🐿️</span>
+  <h1>Esquilo Finanças</h1>
+  <div style="margin-left:auto;color:var(--gold-300);font-size:0.72rem;letter-spacing:0.1em;font-weight:600;text-transform:uppercase;">Gestão Financeira Pessoal</div>
+  <div style="margin-left:16px;">
+    <button class="btn-relatorio" onclick="abrirRelatorio()">
+      📊 Gerar Relatório
+    </button>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════
+     MODAL — RELATÓRIO FINANCEIRO
+═══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modalRelatorio" onclick="fecharModalExterno(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div>
+        <h2>📋 Relatório Financeiro</h2>
+        <div class="modal-subtitle" id="relatorioSubtitulo">Mensal · —</div>
+      </div>
+      <button class="btn-modal-close" onclick="fecharRelatorio()">✕ Fechar</button>
+    </div>
+
+    <!-- Controles de período e tipo -->
+    <div class="relatorio-controls">
+      <label>Tipo</label>
+      <select id="relTipo" onchange="atualizarControlesRelatorio()">
+        <option value="mensal">Mensal</option>
+        <option value="anual">Anual</option>
+      </select>
+      <label id="relLabelMes">Mês</label>
+      <select id="relMes">
+        <option value="0">Janeiro</option><option value="1">Fevereiro</option>
+        <option value="2">Março</option><option value="3">Abril</option>
+        <option value="4">Maio</option><option value="5">Junho</option>
+        <option value="6">Julho</option><option value="7">Agosto</option>
+        <option value="8">Setembro</option><option value="9">Outubro</option>
+        <option value="10">Novembro</option><option value="11">Dezembro</option>
+      </select>
+      <label>Ano</label>
+      <select id="relAno">
+        <option value="2025">2025</option><option value="2026">2026</option>
+        <option value="2027">2027</option><option value="2028">2028</option>
+        <option value="2029">2029</option><option value="2030">2030</option>
+      </select>
+      <button class="btn-gerar" onclick="gerarRelatorio()">▶ Gerar</button>
+    </div>
+
+    <!-- Conteúdo dinâmico do relatório -->
+    <div class="relatorio-body" id="relatorioBody">
+      <div class="relatorio-empty">
+        Selecione o período e clique em <strong>Gerar</strong> para visualizar o relatório.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MAIN ─── -->
+<div class="main-grid">
+
+  <!-- ══════════════ PAINEL ESQUERDO ══════════════ -->
+  <aside class="left-panel">
+
+    <!-- Seletor dinâmico de Mês e Ano -->
+    <div>
+      <div class="month-badge">🗓 Competência</div>
+      <div class="month-selector-row">
+        <select id="selMes" class="sel-periodo" onchange="trocarPeriodo()">
+          <option value="0">Janeiro</option><option value="1">Fevereiro</option>
+          <option value="2">Março</option><option value="3">Abril</option>
+          <option value="4">Maio</option><option value="5">Junho</option>
+          <option value="6">Julho</option><option value="7">Agosto</option>
+          <option value="8">Setembro</option><option value="9">Outubro</option>
+          <option value="10">Novembro</option><option value="11">Dezembro</option>
+        </select>
+        <select id="selAno" class="sel-periodo" onchange="trocarPeriodo()">
+          <option value="2025">2025</option><option value="2026">2026</option>
+          <option value="2027">2027</option><option value="2028">2028</option>
+          <option value="2029">2029</option><option value="2030">2030</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Card Saldo -->
+    <div class="saldo-card estado-neutro" id="saldoCard">
+      <div class="saldo-label">⬡ Saldo Real da Reserva</div>
+      <div class="saldo-value neutro" id="saldoValor">R$ 0,00</div>
+    </div>
+
+    <!-- Mascote Esquilo -->
+    <div class="mascote-container">
+      <div id="mascoteSvg" class="mascote-svg"></div>
+      <div class="mascote-status" id="mascoteStatus">
+        Insira seus lançamentos<br>para ativar a reserva do Esquilo!
+      </div>
+    </div>
+
+    <!-- Resumo -->
+    <div class="resumo-grid">
+      <div class="resumo-item">
+        <div class="label">↑ Entradas</div>
+        <div class="val positive" id="resEntradas">R$ 0,00</div>
+      </div>
+      <div class="resumo-item">
+        <div class="label">↓ Saídas</div>
+        <div class="val negative" id="resSaidas">R$ 0,00</div>
+      </div>
+      <div class="resumo-item">
+        <div class="label">⚙ Fixos pagos</div>
+        <div class="val warn" id="resFixosPagos">R$ 0,00</div>
+      </div>
+      <div class="resumo-item">
+        <div class="label">📊 Projetado</div>
+        <div class="val" id="resProjetado">R$ 0,00</div>
+      </div>
+    </div>
+
+    <!-- Gráfico Rosca -->
+    <div class="donut-wrapper">
+      <h3>Entradas vs Saídas</h3>
+      <canvas id="donutChart"></canvas>
+    </div>
+
+  </aside>
+
+  <!-- ══════════════ PAINEL DIREITO ══════════════ -->
+  <main class="right-panel">
+
+    <!-- ── ENTRADAS ── -->
+    <div class="section-card" id="cardEntradas">
+      <div class="section-header">
+        <h2>💰 Entradas</h2>
+        <span class="section-total positive" id="totalEntradas">R$ 0,00</span>
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="min-width:130px">
+          <label>Categoria</label>
+          <input type="text" id="eCategoria" placeholder="Ex: Salário" list="catEntradas">
+          <datalist id="catEntradas">
+            <option value="Salário"><option value="Vale Alimentação">
+            <option value="Vale Transporte"><option value="Freelance">
+            <option value="Dividendos"><option value="Aluguel recebido"><option value="Outros">
+          </datalist>
+        </div>
+        <div class="form-group" style="max-width:140px">
+          <label>Data</label>
+          <input type="date" id="eData">
+        </div>
+        <div class="form-group" style="max-width:130px">
+          <label>Valor (R$)</label>
+          <input type="number" id="eValor" placeholder="0,00" min="0" step="0.01">
+        </div>
+        <div class="form-group" style="max-width:130px">
+          <label>Status</label>
+          <select id="eStatus">
+            <option value="Recebido">Recebido</option>
+            <option value="Pendente">Pendente</option>
+          </select>
+        </div>
+        <button class="btn-add" onclick="adicionarEntrada()">＋ Adicionar</button>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>Categoria</th><th>Data</th><th>Valor</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody id="tbodyEntradas"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── GASTOS FIXOS ── -->
+    <div class="section-card" id="cardFixos">
+      <div class="section-header">
+        <h2>🏠 Gastos Fixos</h2>
+        <span class="section-total negative" id="totalFixos">R$ 0,00</span>
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="min-width:120px">
+          <label>Categoria</label>
+          <input type="text" id="fCategoria" placeholder="Ex: Aluguel" list="catFixos">
+          <datalist id="catFixos">
+            <option value="Aluguel"><option value="Internet">
+            <option value="Água"><option value="Luz"><option value="Gás">
+            <option value="Celular"><option value="Streaming"><option value="Academia">
+          </datalist>
+        </div>
+        <div class="form-group" style="max-width:140px">
+          <label>Data</label>
+          <input type="date" id="fData">
+        </div>
+        <div class="form-group" style="max-width:130px">
+          <label>Valor (R$)</label>
+          <input type="number" id="fValor" placeholder="0,00" min="0" step="0.01">
+        </div>
+        <div class="form-group" style="max-width:130px">
+          <label>Pagamento</label>
+          <select id="fPagamento">
+            <option value="Pix">Pix</option>
+            <option value="Boleto">Boleto</option>
+            <option value="Débito automático">Débito automático</option>
+            <option value="Cartão">Cartão</option>
+          </select>
+        </div>
+        <div class="form-group" style="max-width:120px">
+          <label>Status</label>
+          <select id="fStatus">
+            <option value="Não pago">Não pago</option>
+            <option value="Pago">Pago</option>
+          </select>
+        </div>
+        <button class="btn-add" onclick="adicionarFixo()">＋ Adicionar</button>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>Categoria</th><th>Data</th><th>Valor</th><th>Pagamento</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody id="tbodyFixos"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── GASTOS VARIÁVEIS ── -->
+    <div class="section-card" id="cardVariaveis">
+      <div class="section-header">
+        <h2>🛒 Gastos Variáveis</h2>
+        <span class="section-total negative" id="totalVariaveis">R$ 0,00</span>
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="min-width:110px;flex:1.2">
+          <label>Categoria</label>
+          <input type="text" id="vCategoria" placeholder="Ex: Mercado" list="catVar">
+          <datalist id="catVar">
+            <option value="iFood"><option value="Mercado"><option value="Farmácia">
+            <option value="Uber"><option value="Restaurante"><option value="Lazer">
+            <option value="Roupa"><option value="Saúde"><option value="Outros">
+          </datalist>
+        </div>
+        <div class="form-group" style="min-width:130px;flex:1.5">
+          <label>Descrição</label>
+          <input type="text" id="vDescricao" placeholder="Detalhe o gasto">
+        </div>
+        <div class="form-group" style="width:138px;flex:0 0 138px">
+          <label>Data</label>
+          <input type="date" id="vData">
+        </div>
+        <div class="form-group" style="width:110px;flex:0 0 110px">
+          <label>Valor (R$)</label>
+          <input type="number" id="vValor" placeholder="0,00" min="0" step="0.01">
+        </div>
+        <div class="form-group" style="width:120px;flex:0 0 120px">
+          <label>Pagamento</label>
+          <select id="vPagamento">
+            <option value="Pix">Pix</option>
+            <option value="Crédito">Crédito</option>
+            <option value="Débito">Débito</option>
+            <option value="Dinheiro">Dinheiro</option>
+          </select>
+        </div>
+        <button class="btn-add" onclick="adicionarVariavel()">＋ Adicionar</button>
+      </div>
+      <div class="var-layout">
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Categoria</th><th>Descrição</th><th>Data</th><th>Valor</th><th>Pagamento</th><th></th></tr>
+            </thead>
+            <tbody id="tbodyVariaveis"></tbody>
+          </table>
+        </div>
+        <div class="bar-chart-panel">
+          <h3>Por categoria</h3>
+          <canvas id="barChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ════════════════════════════════════════════
+     JAVASCRIPT — ESQUILO FINANÇAS
+════════════════════════════════════════════ -->
+<script>
+// ════════════════════════════════════════════════════════════════
+//  ESQUILO FINANÇAS — JavaScript Principal
+//  Rebrand: identidade Esquilo, paleta Esmeralda + Dourado
+//  Preservadas: parseDate tz-safe, Chart.js guards,
+//  seletor mês/ano, localStorage segmentado, backup JSON
+// ════════════════════════════════════════════════════════════════
+
+// ─── ESTADO GLOBAL ────────────────────────────────────────────
+let entradas  = [];
+let fixos     = [];
+let variaveis = [];
+
+let donutChart = null;
+let barChart   = null;
+
+// ─── UTILITÁRIOS ──────────────────────────────────────────────
+const fmt = (v) => v.toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2);
+
+/**
+ * [CORRIGIDO — preservado] parseDate sem conversão de fuso horário.
+ * Usa split('-') para manipular a string ISO diretamente.
+ */
+const parseDate = (d) => {
+  if (!d) return '-';
+  const [ano, mes, dia] = d.split('-');
+  return `${dia}/${mes}/${ano}`;
+};
+
+// ─── GERENCIAMENTO DE PERÍODO ─────────────────────────────────
+function getChavePeriodo() {
+  const mes = String(Number(document.getElementById('selMes').value) + 1).padStart(2, '0');
+  const ano = document.getElementById('selAno').value;
+  return `${ano}_${mes}`;
+}
+function chave(tipo) { return `esq_${tipo}_${getChavePeriodo()}`; }
+
+function salvarStorage() {
+  localStorage.setItem(chave('entradas'),  JSON.stringify(entradas));
+  localStorage.setItem(chave('fixos'),     JSON.stringify(fixos));
+  localStorage.setItem(chave('variaveis'), JSON.stringify(variaveis));
+}
+
+function carregarStorage() {
+  entradas  = JSON.parse(localStorage.getItem(chave('entradas')))  || [];
+  fixos     = JSON.parse(localStorage.getItem(chave('fixos')))     || [];
+  variaveis = JSON.parse(localStorage.getItem(chave('variaveis'))) || [];
+}
+
+function inicializarSeletores() {
+  const agora = new Date();
+  document.getElementById('selMes').value = agora.getMonth();
+  document.getElementById('selAno').value = agora.getFullYear();
+}
+
+function trocarPeriodo() {
+  carregarStorage();
+  renderTudo();
+}
+
+// ─── F1: CALCULAR TOTAIS ──────────────────────────────────────
+function calcularTotais() {
+  const totalEntradas  = entradas.reduce((s, i) => s + i.valor, 0);
+  const totalFixos     = fixos.reduce((s, i) => s + i.valor, 0);
+  const totalVar       = variaveis.reduce((s, i) => s + i.valor, 0);
+  const totalSaidas    = totalFixos + totalVar;
+  const saldoReal      = totalEntradas - totalSaidas;
+  const fixosPagos     = fixos.filter(i => i.status === 'Pago').reduce((s, i) => s + i.valor, 0);
+  const saldoProjetado = totalEntradas - fixosPagos - totalVar;
+  return { totalEntradas, totalFixos, totalVar, totalSaidas, saldoReal, fixosPagos, saldoProjetado };
+}
+
+// ─── SVG ESQUILO — ESTADO NEUTRO ─────────────────────────────
+// Esquilo sereno olhando para frente, postura tranquila
+function svgNeutro() {
+  return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Cauda grande e fluída — característica do esquilo -->
+  <ellipse cx="148" cy="120" rx="38" ry="62" fill="#b45309" transform="rotate(18,148,120)"/>
+  <ellipse cx="145" cy="118" rx="28" ry="52" fill="#d97706" transform="rotate(18,145,118)"/>
+  <!-- Corpo -->
+  <ellipse cx="95" cy="138" rx="38" ry="32" fill="#92400e"/>
+  <!-- Cabeça -->
+  <ellipse cx="96" cy="88" rx="34" ry="32" fill="#b45309"/>
+  <!-- Orelhas pontudas — esquilo -->
+  <polygon points="70,65 62,42 82,58" fill="#92400e"/>
+  <polygon points="72,64 65,46 80,60" fill="#fde68a"/>
+  <polygon points="118,65 126,42 108,58" fill="#92400e"/>
+  <polygon points="116,64 123,46 110,60" fill="#fde68a"/>
+  <!-- Focinho claro -->
+  <ellipse cx="96" cy="98" rx="20" ry="15" fill="#fde68a"/>
+  <!-- Olhos neutros, expressivos -->
+  <circle cx="85" cy="84" r="6" fill="#1e293b"/>
+  <circle cx="107" cy="84" r="6" fill="#1e293b"/>
+  <circle cx="86.5" cy="82.5" r="2" fill="white"/>
+  <circle cx="108.5" cy="82.5" r="2" fill="white"/>
+  <!-- Nariz pequeno -->
+  <ellipse cx="96" cy="95" rx="4" ry="2.5" fill="#92400e"/>
+  <!-- Boca neutra -->
+  <line x1="90" y1="101" x2="102" y2="101" stroke="#78350f" stroke-width="2" stroke-linecap="round"/>
+  <!-- Patinhas -->
+  <ellipse cx="78" cy="164" rx="16" ry="10" fill="#92400e"/>
+  <ellipse cx="114" cy="164" rx="16" ry="10" fill="#92400e"/>
+  <!-- Bolota neutra nas mãos -->
+  <ellipse cx="96" cy="150" rx="10" ry="9" fill="#a16207"/>
+  <ellipse cx="96" cy="148" rx="8" ry="7" fill="#ca8a04"/>
+  <rect x="93" y="141" width="6" height="6" rx="1" fill="#78350f"/>
+</svg>`;
+}
+
+// ─── SVG ESQUILO — ESTADO TRISTE ─────────────────────────────
+// Esquilo desesperado com bolota vazia, lágrimas
+function svgTriste() {
+  return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Cauda murcha -->
+  <ellipse cx="146" cy="128" rx="28" ry="50" fill="#78350f" transform="rotate(22,146,128)"/>
+  <ellipse cx="144" cy="126" rx="19" ry="40" fill="#92400e" transform="rotate(22,144,126)"/>
+  <!-- Corpo -->
+  <ellipse cx="94" cy="140" rx="36" ry="30" fill="#78350f"/>
+  <!-- Cabeça -->
+  <ellipse cx="95" cy="89" rx="34" ry="32" fill="#92400e"/>
+  <!-- Orelhas -->
+  <polygon points="69,66 61,43 81,59" fill="#78350f"/>
+  <polygon points="71,65 64,47 79,61" fill="#fde68a"/>
+  <polygon points="117,66 125,43 107,59" fill="#78350f"/>
+  <polygon points="115,65 122,47 109,61" fill="#fde68a"/>
+  <!-- Focinho -->
+  <ellipse cx="95" cy="99" rx="20" ry="15" fill="#fde68a"/>
+  <!-- Olhos tristes com sobrancelhas inclinadas -->
+  <ellipse cx="84" cy="85" rx="6.5" ry="7.5" fill="#1e293b"/>
+  <ellipse cx="106" cy="85" rx="6.5" ry="7.5" fill="#1e293b"/>
+  <circle cx="85.5" cy="83" r="2" fill="white"/>
+  <circle cx="107.5" cy="83" r="2" fill="white"/>
+  <!-- Sobrancelhas viradas para baixo (triste) -->
+  <path d="M77 76 Q84 72 91 76" stroke="#1e293b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M99 76 Q106 72 113 76" stroke="#1e293b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <!-- Boca curvada para baixo -->
+  <path d="M85 104 Q95 97 105 104" stroke="#78350f" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <!-- Nariz -->
+  <ellipse cx="95" cy="96" rx="4" ry="2.5" fill="#78350f"/>
+  <!-- Lágrimas -->
+  <ellipse cx="78" cy="95" rx="3" ry="5" fill="#7dd3fc" opacity="0.9"/>
+  <ellipse cx="80" cy="103" rx="2.5" ry="4" fill="#7dd3fc" opacity="0.8"/>
+  <ellipse cx="110" cy="95" rx="3" ry="5" fill="#7dd3fc" opacity="0.9"/>
+  <ellipse cx="108" cy="103" rx="2.5" ry="4" fill="#7dd3fc" opacity="0.8"/>
+  <!-- Bolota VAZIA nas mãos -->
+  <ellipse cx="95" cy="151" rx="11" ry="10" fill="#92400e" opacity="0.4"/>
+  <path d="M87 151 Q95 143 103 151" stroke="#78350f" stroke-width="1.5" fill="none" stroke-dasharray="3,2"/>
+  <text x="90" y="156" font-size="10" fill="#dc2626" opacity="0.7">∅</text>
+  <!-- Patinhas -->
+  <ellipse cx="77" cy="165" rx="15" ry="9" fill="#78350f"/>
+  <ellipse cx="113" cy="165" rx="15" ry="9" fill="#78350f"/>
+</svg>`;
+}
+
+// ─── SVG ESQUILO — ESTADO PREOCUPADO ─────────────────────────
+// Esquilo nervoso roendo bolota, gota de suor
+function svgPreocupada() {
+  return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Cauda semi-erguida, nervosa -->
+  <ellipse cx="149" cy="116" rx="34" ry="58" fill="#b45309" transform="rotate(14,149,116)"/>
+  <ellipse cx="147" cy="114" rx="24" ry="48" fill="#d97706" transform="rotate(14,147,114)"/>
+  <!-- Corpo -->
+  <ellipse cx="93" cy="138" rx="37" ry="31" fill="#92400e"/>
+  <!-- Cabeça levemente inclinada -->
+  <ellipse cx="94" cy="88" rx="34" ry="32" fill="#b45309"/>
+  <!-- Orelhas -->
+  <polygon points="68,65 60,42 80,58" fill="#92400e"/>
+  <polygon points="70,64 63,46 78,60" fill="#fde68a"/>
+  <polygon points="117,65 125,42 107,58" fill="#92400e"/>
+  <polygon points="115,64 122,46 109,60" fill="#fde68a"/>
+  <!-- Focinho -->
+  <ellipse cx="94" cy="98" rx="20" ry="15" fill="#fde68a"/>
+  <!-- Olhos arregalados preocupados -->
+  <circle cx="83" cy="84" r="7" fill="#1e293b"/>
+  <circle cx="106" cy="84" r="7" fill="#1e293b"/>
+  <circle cx="84.5" cy="82" r="2.5" fill="white"/>
+  <circle cx="107.5" cy="82" r="2.5" fill="white"/>
+  <!-- Sobrancelhas levantadas (preocupado) -->
+  <path d="M76 74 Q83 69 90 74" stroke="#1e293b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M99 74 Q106 69 113 74" stroke="#1e293b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <!-- Boca mordendo bolota nervosamente -->
+  <path d="M84 103 Q94 108 104 103" stroke="#78350f" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- Nariz -->
+  <ellipse cx="94" cy="95" rx="4" ry="2.5" fill="#92400e"/>
+  <!-- Suor frio -->
+  <ellipse cx="130" cy="68" rx="5" ry="7.5" fill="#bae6fd" opacity="0.85"/>
+  <ellipse cx="140" cy="80" rx="4" ry="6" fill="#bae6fd" opacity="0.70"/>
+  <ellipse cx="135" cy="58" rx="3.5" ry="5" fill="#bae6fd" opacity="0.60"/>
+  <!-- Bolota sendo roída (na boca) -->
+  <ellipse cx="94" cy="116" rx="12" ry="11" fill="#a16207"/>
+  <ellipse cx="94" cy="114" rx="10" ry="9" fill="#ca8a04"/>
+  <rect x="91" y="107" width="6" height="6" rx="1" fill="#78350f"/>
+  <!-- Marcas de mordida na bolota -->
+  <path d="M88 118 Q94 112 100 118" stroke="#78350f" stroke-width="1.5" fill="none"/>
+  <!-- Patinhas -->
+  <ellipse cx="76" cy="163" rx="15" ry="9" fill="#92400e"/>
+  <ellipse cx="112" cy="163" rx="15" ry="9" fill="#92400e"/>
+</svg>`;
+}
+
+// ─── SVG ESQUILO — ESTADO FELIZ ──────────────────────────────
+// Esquilo triunfante com bolota dourada, óculos escuros
+function svgFeliz() {
+  return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Cauda cheia e erguida com brilho -->
+  <ellipse cx="152" cy="110" rx="42" ry="66" fill="#b45309" transform="rotate(12,152,110)"/>
+  <ellipse cx="149" cy="108" rx="31" ry="55" fill="#d97706" transform="rotate(12,149,108)"/>
+  <!-- Reflexo na cauda -->
+  <ellipse cx="143" cy="90" rx="10" ry="22" fill="#fbbf24" opacity="0.35" transform="rotate(12,143,90)"/>
+  <!-- Corpo -->
+  <ellipse cx="95" cy="136" rx="38" ry="32" fill="#92400e"/>
+  <!-- Cabeça -->
+  <ellipse cx="96" cy="86" rx="35" ry="33" fill="#b45309"/>
+  <!-- Orelhas pontudas levantadas (esquilo feliz) -->
+  <polygon points="70,63 61,38 83,55" fill="#92400e"/>
+  <polygon points="72,62 64,43 81,57" fill="#fde68a"/>
+  <polygon points="120,63 129,38 107,55" fill="#92400e"/>
+  <polygon points="118,62 126,43 109,57" fill="#fde68a"/>
+  <!-- Focinho -->
+  <ellipse cx="96" cy="96" rx="21" ry="15" fill="#fde68a"/>
+  <!-- Óculos de sol dourados — sucesso -->
+  <rect x="74" y="76" width="20" height="13" rx="4" fill="#0f172a" opacity="0.88"/>
+  <rect x="100" y="76" width="20" height="13" rx="4" fill="#0f172a" opacity="0.88"/>
+  <line x1="94" y1="82" x2="100" y2="82" stroke="#b8860b" stroke-width="2.5"/>
+  <!-- Aros dos óculos em dourado -->
+  <rect x="74" y="76" width="20" height="13" rx="4" fill="none" stroke="#d4a017" stroke-width="1.5"/>
+  <rect x="100" y="76" width="20" height="13" rx="4" fill="none" stroke="#d4a017" stroke-width="1.5"/>
+  <!-- Reflexos nos óculos -->
+  <circle cx="80" cy="80" r="2.5" fill="white" opacity="0.55"/>
+  <circle cx="106" cy="80" r="2.5" fill="white" opacity="0.55"/>
+  <!-- Sorriso largo -->
+  <path d="M83 100 Q96 114 109 100" stroke="#78350f" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <!-- Nariz -->
+  <ellipse cx="96" cy="93" rx="4" ry="2.5" fill="#78350f"/>
+  <!-- BOLOTA DOURADA nas patas — tesouro -->
+  <ellipse cx="96" cy="148" rx="14" ry="13" fill="#b8860b"/>
+  <ellipse cx="96" cy="146" rx="12" ry="11" fill="#d4a017"/>
+  <ellipse cx="96" cy="144" rx="9" ry="8" fill="#e2b93b"/>
+  <ellipse cx="93" cy="142" rx="3" ry="2.5" fill="#fde68a" opacity="0.7"/>
+  <rect x="93" y="135" width="6" height="7" rx="1.5" fill="#92400e"/>
+  <!-- Brilhos na bolota dourada -->
+  <circle cx="101" cy="143" r="2" fill="#fef9c3" opacity="0.8"/>
+  <!-- Estrelinhas de brilho -->
+  <text x="56" y="52" font-size="12" fill="#fbbf24" opacity="0.9">✦</text>
+  <text x="130" y="46" font-size="9"  fill="#fbbf24" opacity="0.7">✦</text>
+  <text x="148" y="68" font-size="7"  fill="#fde68a" opacity="0.6">✦</text>
+  <!-- Patinhas -->
+  <ellipse cx="78" cy="162" rx="16" ry="10" fill="#92400e"/>
+  <ellipse cx="114" cy="162" rx="16" ry="10" fill="#92400e"/>
+</svg>`;
+}
+
+// ─── F2: ATUALIZAR MASCOTE (árvore de decisão de humor) ───────
+function atualizarMascote(totais) {
+  const { saldoReal, totalEntradas } = totais;
+  const card   = document.getElementById('saldoCard');
+  const valor  = document.getElementById('saldoValor');
+  const status = document.getElementById('mascoteStatus');
+  const svgEl  = document.getElementById('mascoteSvg');
+
+  card.className  = 'saldo-card';
+  valor.className = 'saldo-value';
+
+  // Animação bounce a cada atualização
+  svgEl.classList.remove('mascote-bounce');
+  void svgEl.offsetWidth;
+  svgEl.classList.add('mascote-bounce');
+
+  // Estado inicial — sem dados
+  if (totalEntradas === 0 && saldoReal === 0) {
+    card.classList.add('estado-neutro');
+    valor.classList.add('neutro');
+    svgEl.innerHTML = svgNeutro();
+    status.innerHTML = 'Insira seus lançamentos<br>para ativar a reserva do Esquilo!';
+    return;
+  }
+
+  if (saldoReal < 0) {
+    // Saldo negativo — despesas superaram ganhos
+    card.classList.add('estado-triste');
+    valor.classList.add('triste');
+    svgEl.innerHTML = svgTriste();
+    status.innerHTML = '😢 O inverno chegou! Suas despesas superaram os ganhos e o estoque acabou.';
+  } else if (saldoReal <= 0.10 * totalEntradas) {
+    // Saldo apertado — consumiu mais de 90% da renda
+    card.classList.add('estado-preocupada');
+    valor.classList.add('preocupada');
+    svgEl.innerHTML = svgPreocupada();
+    status.innerHTML = '😰 Alerta de Escassez! Você já comprometeu mais de 90% dos seus recursos brutos.';
+  } else {
+    // Boa saúde financeira
+    card.classList.add('estado-feliz');
+    valor.classList.add('feliz');
+    svgEl.innerHTML = svgFeliz();
+    status.innerHTML = '💰 Estoque Garantido! Seus investimentos e economias estão protegidos e crescendo.';
+  }
+}
+
+// ─── ATUALIZAR PAINEL NUMÉRICO ────────────────────────────────
+function atualizarPainel() {
+  const t = calcularTotais();
+
+  document.getElementById('saldoValor').textContent     = fmt(t.saldoReal);
+  document.getElementById('totalEntradas').textContent  = fmt(t.totalEntradas);
+  document.getElementById('totalFixos').textContent     = fmt(t.totalFixos);
+  document.getElementById('totalVariaveis').textContent = fmt(t.totalVar);
+  document.getElementById('resEntradas').textContent    = fmt(t.totalEntradas);
+  document.getElementById('resSaidas').textContent      = fmt(t.totalSaidas);
+  document.getElementById('resFixosPagos').textContent  = fmt(t.fixosPagos);
+
+  const projEl = document.getElementById('resProjetado');
+  projEl.textContent = fmt(t.saldoProjetado);
+  projEl.className = 'val ' + (t.saldoProjetado >= 0 ? 'positive' : 'negative');
+
+  atualizarMascote(t);
+  renderizarGraficos(t);
+}
+
+// ─── F3: RENDERIZAR GRÁFICOS ──────────────────────────────────
+function renderizarGraficos(t) {
+
+  // ── Gráfico Rosca ──────────────────────────────────────────
+  const donutCtx = document.getElementById('donutChart').getContext('2d');
+
+  // [GUARD] Estado vazio: evita divisão por zero no Chart.js
+  const isDonutVazio = t.totalEntradas === 0 && t.totalSaidas === 0;
+  const donutData = {
+    labels: isDonutVazio ? ['Sem dados'] : ['Entradas', 'Saídas'],
+    datasets: [{
+      data:            isDonutVazio ? [1, 0] : [t.totalEntradas, t.totalSaidas],
+      backgroundColor: isDonutVazio
+        ? ['rgba(148,163,184,0.22)', 'transparent']
+        : ['rgba(52,211,153,0.80)', 'rgba(248,113,113,0.80)'],
+      borderColor: isDonutVazio
+        ? ['rgba(148,163,184,0.40)', 'transparent']
+        : ['#059669', '#dc2626'],
+      borderWidth: isDonutVazio ? 1 : 2,
+    }]
+  };
+
+  if (donutChart) {
+    donutChart.data = donutData;
+    donutChart.update();
+  } else {
+    donutChart = new Chart(donutCtx, {
+      type: 'doughnut',
+      data: donutData,
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { color: '#a7f3d0', font: { family: 'DM Sans', size: 11 }, boxWidth: 12 }
+          },
+          tooltip: {
+            callbacks: { label: ctx => isDonutVazio ? 'Sem registros' : fmt(ctx.parsed) }
+          }
+        },
+        cutout: '65%',
+      }
+    });
+  }
+
+  // ── Gráfico Barras por categoria ───────────────────────────
+  const agrupado = variaveis.reduce((acc, item) => {
+    acc[item.categoria] = (acc[item.categoria] || 0) + item.valor;
+    return acc;
+  }, {});
+
+  const barLabels = Object.keys(agrupado);
+  const barValues = Object.values(agrupado);
+
+  // Paleta alinhada ao tema esmeralda + dourado
+  const palette = ['#059669','#d4a017','#047857','#b8860b','#10b981','#e2b93b','#065f46','#f0d080'];
+
+  // [GUARD] Estado vazio: destrói instância anterior para evitar barras fantasmas
+  if (barLabels.length === 0) {
+    if (barChart) { barChart.destroy(); barChart = null; }
+    const barCtx = document.getElementById('barChart').getContext('2d');
+    barChart = new Chart(barCtx, {
+      type: 'bar',
+      data: { labels: [], datasets: [{ label: 'Total (R$)', data: [] }] },
+      options: {
+        indexAxis: 'y', responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#059669', font: { size: 9 } }, grid: { color: 'rgba(5,150,105,0.10)' } },
+          y: { ticks: { color: '#065f46', font: { size: 10 } }, grid: { display: false } }
+        }
+      }
+    });
+    return;
+  }
+
+  const barCtx = document.getElementById('barChart').getContext('2d');
+  const barData = {
+    labels: barLabels,
+    datasets: [{
+      label: 'Total (R$)',
+      data: barValues,
+      backgroundColor: barLabels.map((_, i) => palette[i % palette.length] + 'BB'),
+      borderColor:     barLabels.map((_, i) => palette[i % palette.length]),
+      borderWidth: 1.5,
+      borderRadius: 5,
+    }]
+  };
+
+  if (barChart) {
+    barChart.data = barData;
+    barChart.update();
+  } else {
+    barChart = new Chart(barCtx, {
+      type: 'bar',
+      data: barData,
+      options: {
+        indexAxis: 'y', responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => fmt(ctx.parsed.x) } }
+        },
+        scales: {
+          x: {
+            ticks: {
+              color: '#059669', font: { size: 9 },
+              callback: v => 'R$' + (v/1000 >= 1 ? (v/1000).toFixed(1)+'k' : v)
+            },
+            grid: { color: 'rgba(5,150,105,0.10)' }
+          },
+          y: { ticks: { color: '#065f46', font: { size: 10 } }, grid: { display: false } }
+        }
+      }
+    });
+  }
+}
+
+// ─── RENDER TABELAS ───────────────────────────────────────────
+function renderEntradas() {
+  const tbody = document.getElementById('tbodyEntradas');
+  if (!entradas.length) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="5">Nenhuma entrada cadastrada.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = entradas.map((e, i) => `
+    <tr class="new-row">
+      <td>${e.categoria}</td>
+      <td>${parseDate(e.data)}</td>
+      <td class="${e.valor >= 0 ? 'valor-positivo' : ''}">${fmt(e.valor)}</td>
+      <td>
+        <span class="status-toggle ${e.status === 'Recebido' ? 'recebido' : 'pendente'}"
+              onclick="toggleStatus('entradas', ${i})">
+          <span class="status-dot"></span>${e.status}
+        </span>
+      </td>
+      <td><button class="btn-del" onclick="deletar('entradas', ${i})" title="Remover">✕</button></td>
+    </tr>`).join('');
+}
+
+function renderFixos() {
+  const tbody = document.getElementById('tbodyFixos');
+  if (!fixos.length) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Nenhum gasto fixo cadastrado.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = fixos.map((f, i) => `
+    <tr class="new-row">
+      <td>${f.categoria}</td>
+      <td>${parseDate(f.data)}</td>
+      <td class="valor-negativo">${fmt(f.valor)}</td>
+      <td>${f.forma_pagamento}</td>
+      <td>
+        <span class="status-toggle ${f.status === 'Pago' ? 'pago' : 'nao-pago'}"
+              onclick="toggleStatus('fixos', ${i})">
+          <span class="status-dot"></span>${f.status}
+        </span>
+      </td>
+      <td><button class="btn-del" onclick="deletar('fixos', ${i})" title="Remover">✕</button></td>
+    </tr>`).join('');
+}
+
+function renderVariaveis() {
+  const tbody = document.getElementById('tbodyVariaveis');
+  if (!variaveis.length) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Nenhum gasto variável cadastrado.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = variaveis.map((v, i) => `
+    <tr class="new-row">
+      <td>${v.categoria}</td>
+      <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"
+          title="${v.descricao}">${v.descricao || '-'}</td>
+      <td>${parseDate(v.data)}</td>
+      <td class="valor-negativo">${fmt(v.valor)}</td>
+      <td>${v.forma_pagamento}</td>
+      <td><button class="btn-del" onclick="deletar('variaveis', ${i})" title="Remover">✕</button></td>
+    </tr>`).join('');
+}
+
+function renderTudo() {
+  renderEntradas();
+  renderFixos();
+  renderVariaveis();
+  atualizarPainel();
+  salvarStorage();
+}
+
+// ─── TOGGLE STATUS ────────────────────────────────────────────
+function toggleStatus(tipo, idx) {
+  if (tipo === 'entradas') {
+    entradas[idx].status = entradas[idx].status === 'Recebido' ? 'Pendente' : 'Recebido';
+  } else if (tipo === 'fixos') {
+    fixos[idx].status = fixos[idx].status === 'Pago' ? 'Não pago' : 'Pago';
+  }
+  renderTudo();
+}
+
+// ─── DELETAR ─────────────────────────────────────────────────
+function deletar(tipo, idx) {
+  if (tipo === 'entradas')  entradas.splice(idx, 1);
+  if (tipo === 'fixos')     fixos.splice(idx, 1);
+  if (tipo === 'variaveis') variaveis.splice(idx, 1);
+  renderTudo();
+}
+
+// ─── HELPERS FORMULÁRIO ───────────────────────────────────────
+function getVal(id) { return document.getElementById(id).value.trim(); }
+function getNum(id) { return parseFloat(document.getElementById(id).value) || 0; }
+function clearInputs(...ids) { ids.forEach(id => document.getElementById(id).value = ''); }
+
+function validar(campos) {
+  for (const [id, msg] of campos) {
+    if (!document.getElementById(id).value) {
+      alert(msg); document.getElementById(id).focus(); return false;
+    }
+  }
+  return true;
+}
+
+// ─── ADICIONAR REGISTROS ──────────────────────────────────────
+function adicionarEntrada() {
+  if (!validar([['eCategoria','Informe a categoria'], ['eValor','Informe o valor']])) return;
+  entradas.push({ id: uid(), categoria: getVal('eCategoria'), data: getVal('eData'), valor: getNum('eValor'), status: getVal('eStatus') });
+  clearInputs('eCategoria','eData','eValor');
+  renderTudo();
+}
+
+function adicionarFixo() {
+  if (!validar([['fCategoria','Informe a categoria'], ['fValor','Informe o valor']])) return;
+  fixos.push({ id: uid(), categoria: getVal('fCategoria'), data: getVal('fData'), valor: getNum('fValor'), forma_pagamento: getVal('fPagamento'), status: getVal('fStatus') });
+  clearInputs('fCategoria','fData','fValor');
+  renderTudo();
+}
+
+function adicionarVariavel() {
+  if (!validar([['vCategoria','Informe a categoria'], ['vValor','Informe o valor']])) return;
+  variaveis.push({ id: uid(), categoria: getVal('vCategoria'), descricao: getVal('vDescricao'), data: getVal('vData'), valor: getNum('vValor'), forma_pagamento: getVal('vPagamento') });
+  clearInputs('vCategoria','vDescricao','vData','vValor');
+  renderTudo();
+}
+
+// ─── MODAL RELATÓRIO — CONTROLES ─────────────────────────────
+
+/** Abre o modal e sincroniza os selects com o período atual */
+function abrirRelatorio() {
+  const modal = document.getElementById('modalRelatorio');
+  // Pré-preenche com o período da tela principal
+  document.getElementById('relMes').value = document.getElementById('selMes').value;
+  document.getElementById('relAno').value = document.getElementById('selAno').value;
+  atualizarControlesRelatorio();
+  modal.classList.add('open');
+}
+
+function fecharRelatorio() {
+  document.getElementById('modalRelatorio').classList.remove('open');
+}
+
+/** Fecha o modal ao clicar no overlay externo */
+function fecharModalExterno(e) {
+  if (e.target.id === 'modalRelatorio') fecharRelatorio();
+}
+
+/** Esconder/mostrar o select de Mês conforme tipo Mensal/Anual */
+function atualizarControlesRelatorio() {
+  const tipo = document.getElementById('relTipo').value;
+  const labelMes = document.getElementById('relLabelMes');
+  const selMesEl = document.getElementById('relMes');
+  labelMes.style.display = tipo === 'anual' ? 'none' : '';
+  selMesEl.style.display  = tipo === 'anual' ? 'none' : '';
+}
+
+// ─── HELPERS DO RELATÓRIO ─────────────────────────────────────
+
+const MESES_NOMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+                     'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+/** Carrega os dados de uma competência específica do localStorage */
+function carregarCompetencia(ano, mesIdx) {
+  const mm  = String(mesIdx + 1).padStart(2, '0');
+  const pfx = `${ano}_${mm}`;
+  const e   = JSON.parse(localStorage.getItem(`esq_entradas_${pfx}`))  || [];
+  const f   = JSON.parse(localStorage.getItem(`esq_fixos_${pfx}`))     || [];
+  const v   = JSON.parse(localStorage.getItem(`esq_variaveis_${pfx}`)) || [];
+  return { entradas: e, fixos: f, variaveis: v };
+}
+
+/** Soma um array de objetos pelo campo valor */
+const soma = arr => arr.reduce((s, i) => s + (i.valor || 0), 0);
+
+/** Formata percentual */
+const pct = (v, t) => t > 0 ? ((v / t) * 100).toFixed(1) + '%' : '—';
+
+/** Gera a cor de progresso de acordo com o percentual */
+function corProgresso(pctNum) {
+  if (pctNum >= 90) return '#dc2626';
+  if (pctNum >= 70) return '#d97706';
+  return '#059669';
+}
+
+/** Agrupa array por campo e retorna { categoria: total }[] ordenado */
+function agrupar(arr, campo) {
+  const mapa = arr.reduce((acc, i) => {
+    const k = i[campo] || 'Outros';
+    acc[k] = (acc[k] || 0) + (i.valor || 0);
+    return acc;
+  }, {});
+  return Object.entries(mapa).sort((a, b) => b[1] - a[1]);
+}
+
+/** Badge de situação financeira */
+function badgeSituacao(saldo, entradas) {
+  if (saldo < 0)                          return '<span class="badge-situacao danger">🔴 Negativo</span>';
+  if (saldo <= 0.10 * entradas)           return '<span class="badge-situacao warn">🟡 Apertado</span>';
+  return '<span class="badge-situacao ok">🟢 Saudável</span>';
+}
+
+// ─── GERADOR DO RELATÓRIO ─────────────────────────────────────
+
+function gerarRelatorio() {
+  const tipo = document.getElementById('relTipo').value;
+  const ano  = parseInt(document.getElementById('relAno').value);
+  const mes  = parseInt(document.getElementById('relMes').value);
+  const body = document.getElementById('relatorioBody');
+  const sub  = document.getElementById('relatorioSubtitulo');
+
+  if (tipo === 'mensal') {
+    sub.textContent = `Mensal · ${MESES_NOMES[mes]} / ${ano}`;
+    body.innerHTML  = gerarRelatorioMensal(ano, mes);
+  } else {
+    sub.textContent = `Anual · ${ano}`;
+    body.innerHTML  = gerarRelatorioAnual(ano);
+  }
+}
+
+// ── RELATÓRIO MENSAL ─────────────────────────────────────────
+function gerarRelatorioMensal(ano, mes) {
+  const { entradas: ent, fixos: fix, variaveis: vari } = carregarCompetencia(ano, mes);
+
+  const totalEnt   = soma(ent);
+  const totalFix   = soma(fix);
+  const totalVar   = soma(vari);
+  const totalSai   = totalFix + totalVar;
+  const saldo      = totalEnt - totalSai;
+  const fixPagos   = soma(fix.filter(i => i.status === 'Pago'));
+  const projetado  = totalEnt - fixPagos - totalVar;
+  const pctGasto   = totalEnt > 0 ? ((totalSai / totalEnt) * 100) : 0;
+  const pctSalvo   = totalEnt > 0 ? (Math.max(0, saldo / totalEnt) * 100) : 0;
+
+  if (totalEnt === 0 && totalSai === 0) {
+    return `<div class="relatorio-empty">📭 Nenhum lançamento encontrado para ${MESES_NOMES[mes]} / ${ano}.</div>`;
+  }
+
+  // Agrupamentos para tabelas de categorias
+  const catVar   = agrupar(vari, 'categoria');
+  const catFix   = agrupar(fix, 'categoria');
+  const catPgto  = agrupar([...fix, ...vari], 'forma_pagamento');
+
+  const rowsCatVar = catVar.map(([cat, val]) => {
+    const p = pctNum(val, totalVar);
+    return `<tr>
+      <td>${cat}</td>
+      <td class="val-neg">${fmt(val)}</td>
+      <td>${pct(val, totalVar)}
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${Math.min(p,100)}%;background:${corProgresso(p)}"></div></div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  const rowsCatFix = catFix.map(([cat, val]) => {
+    const item = fix.find(i => i.categoria === cat);
+    return `<tr>
+      <td>${cat}</td>
+      <td class="val-neg">${fmt(val)}</td>
+      <td>${item ? item.forma_pagamento : '—'}</td>
+      <td>${item ? (item.status === 'Pago'
+        ? '<span class="badge-situacao ok" style="font-size:0.68rem">✓ Pago</span>'
+        : '<span class="badge-situacao warn" style="font-size:0.68rem">⏳ Pendente</span>') : '—'}</td>
+    </tr>`;
+  }).join('');
+
+  const rowsPgto = catPgto.map(([pgto, val]) =>
+    `<tr><td>${pgto}</td><td class="val-neg">${fmt(val)}</td><td>${pct(val, totalSai)}</td></tr>`
+  ).join('');
+
+  // Entradas detalhadas
+  const rowsEnt = ent.length
+    ? ent.map(e => `<tr>
+        <td>${e.categoria}</td>
+        <td>${parseDate(e.data)}</td>
+        <td class="val-pos">${fmt(e.valor)}</td>
+        <td>${e.status === 'Recebido'
+          ? '<span class="badge-situacao ok" style="font-size:0.68rem">✓ Recebido</span>'
+          : '<span class="badge-situacao warn" style="font-size:0.68rem">⏳ Pendente</span>'}</td>
+      </tr>`).join('')
+    : '<tr><td colspan="4" style="text-align:center;color:#94a3b8;font-style:italic">Sem entradas</td></tr>';
+
+  return `
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">💰 Total Entradas</div>
+      <div class="kpi-value green">${fmt(totalEnt)}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">📤 Total Saídas</div>
+      <div class="kpi-value red">${fmt(totalSai)}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">⬡ Saldo Real</div>
+      <div class="kpi-value ${saldo >= 0 ? 'green' : 'red'}">${fmt(saldo)}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">📊 Situação</div>
+      <div style="margin-top:4px">${badgeSituacao(saldo, totalEnt)}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">🏠 Gastos Fixos</div>
+      <div class="kpi-value slate">${fmt(totalFix)}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">🛒 Gastos Variáveis</div>
+      <div class="kpi-value slate">${fmt(totalVar)}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">🔮 Saldo Projetado</div>
+      <div class="kpi-value ${projetado >= 0 ? 'green' : 'red'}">${fmt(projetado)}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">📈 % Poupado</div>
+      <div class="kpi-value gold">${pct(Math.max(0,saldo), totalEnt)}</div>
+    </div>
+  </div>
+
+  <!-- Comprometimento da renda -->
+  <div class="rel-section">
+    <h3>📉 Comprometimento da Renda</h3>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;font-size:0.82rem;color:var(--slate-700)">
+      <span>Saídas sobre Entradas</span>
+      <strong style="color:${corProgresso(pctGasto)}">${pctGasto.toFixed(1)}%</strong>
+    </div>
+    <div class="progress-bar-wrap" style="height:14px;border-radius:8px">
+      <div class="progress-bar-fill" style="width:${Math.min(pctGasto,100)}%;background:${corProgresso(pctGasto)};height:14px;border-radius:8px"></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;margin-bottom:6px;font-size:0.82rem;color:var(--slate-700)">
+      <span>Poupança sobre Entradas</span>
+      <strong style="color:#059669">${pctSalvo.toFixed(1)}%</strong>
+    </div>
+    <div class="progress-bar-wrap" style="height:14px;border-radius:8px">
+      <div class="progress-bar-fill" style="width:${Math.min(pctSalvo,100)}%;background:#059669;height:14px;border-radius:8px"></div>
+    </div>
+  </div>
+
+  <!-- Entradas detalhadas -->
+  <div class="rel-section">
+    <h3>💰 Entradas do Mês</h3>
+    <table class="rel-table">
+      <thead><tr><th>Categoria</th><th>Data</th><th>Valor</th><th>Status</th></tr></thead>
+      <tbody>
+        ${rowsEnt}
+        <tr class="total-row"><td colspan="2"><strong>Total</strong></td><td class="val-pos"><strong>${fmt(totalEnt)}</strong></td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Gastos Fixos -->
+  ${totalFix > 0 ? `
+  <div class="rel-section">
+    <h3>🏠 Gastos Fixos por Categoria</h3>
+    <table class="rel-table">
+      <thead><tr><th>Categoria</th><th>Valor</th><th>Pagamento</th><th>Status</th></tr></thead>
+      <tbody>
+        ${rowsCatFix}
+        <tr class="total-row"><td><strong>Total</strong></td><td class="val-neg"><strong>${fmt(totalFix)}</strong></td><td></td><td></td></tr>
+      </tbody>
+    </table>
+  </div>` : ''}
+
+  <!-- Gastos Variáveis por categoria -->
+  ${totalVar > 0 ? `
+  <div class="rel-section">
+    <h3>🛒 Gastos Variáveis por Categoria</h3>
+    <table class="rel-table">
+      <thead><tr><th>Categoria</th><th>Valor</th><th>% do Total Variável</th></tr></thead>
+      <tbody>
+        ${rowsCatVar}
+        <tr class="total-row"><td><strong>Total</strong></td><td class="val-neg"><strong>${fmt(totalVar)}</strong></td><td>100%</td></tr>
+      </tbody>
+    </table>
+  </div>` : ''}
+
+  <!-- Formas de pagamento -->
+  ${catPgto.length > 0 ? `
+  <div class="rel-section">
+    <h3>💳 Gastos por Forma de Pagamento</h3>
+    <table class="rel-table">
+      <thead><tr><th>Forma de Pagamento</th><th>Total</th><th>% das Saídas</th></tr></thead>
+      <tbody>
+        ${rowsPgto}
+        <tr class="total-row"><td><strong>Total</strong></td><td class="val-neg"><strong>${fmt(totalSai)}</strong></td><td>100%</td></tr>
+      </tbody>
+    </table>
+  </div>` : ''}
+  `;
+}
+
+// ── RELATÓRIO ANUAL ──────────────────────────────────────────
+function gerarRelatorioAnual(ano) {
+  let totalEntAno = 0, totalSaiAno = 0, totalFixAno = 0, totalVarAno = 0;
+  const mesesData = [];
+
+  for (let m = 0; m < 12; m++) {
+    const { entradas: ent, fixos: fix, variaveis: vari } = carregarCompetencia(ano, m);
+    const tEnt = soma(ent), tFix = soma(fix), tVar = soma(vari);
+    const tSai = tFix + tVar, saldo = tEnt - tSai;
+    if (tEnt > 0 || tSai > 0) {
+      mesesData.push({ mes: m, tEnt, tFix, tVar, tSai, saldo });
+      totalEntAno += tEnt; totalSaiAno += tSai;
+      totalFixAno += tFix; totalVarAno += tVar;
+    }
+  }
+
+  if (mesesData.length === 0) {
+    return `<div class="relatorio-empty">📭 Nenhum lançamento encontrado para o ano ${ano}.</div>`;
+  }
+
+  const saldoAno    = totalEntAno - totalSaiAno;
+  const mediaMensal = totalEntAno / mesesData.length;
+  const pctGastoAno = totalEntAno > 0 ? ((totalSaiAno / totalEntAno) * 100) : 0;
+  const pctPoupAno  = totalEntAno > 0 ? (Math.max(0, saldoAno / totalEntAno) * 100) : 0;
+
+  const rowsMeses = mesesData.map(d => {
+    const p = pctNum(d.tSai, d.tEnt);
+    return `<tr>
+      <td><strong>${MESES_NOMES[d.mes]}</strong></td>
+      <td class="val-pos">${fmt(d.tEnt)}</td>
+      <td class="val-neg">${fmt(d.tSai)}</td>
+      <td class="${d.saldo >= 0 ? 'val-pos' : 'val-neg'}">${fmt(d.saldo)}</td>
+      <td>${badgeSituacao(d.saldo, d.tEnt)}</td>
+      <td style="color:${corProgresso(p)};font-weight:600">${p.toFixed(0)}%</td>
+    </tr>`;
+  }).join('');
+
+  // Melhor e pior mês
+  const melhorMes = [...mesesData].sort((a,b) => b.saldo - a.saldo)[0];
+  const piorMes   = [...mesesData].sort((a,b) => a.saldo - b.saldo)[0];
+
+  return `
+  <!-- KPIs anuais -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">💰 Entradas no Ano</div>
+      <div class="kpi-value green">${fmt(totalEntAno)}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">📤 Saídas no Ano</div>
+      <div class="kpi-value red">${fmt(totalSaiAno)}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">⬡ Saldo Acumulado</div>
+      <div class="kpi-value ${saldoAno >= 0 ? 'green' : 'red'}">${fmt(saldoAno)}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">📅 Meses com Dados</div>
+      <div class="kpi-value slate">${mesesData.length} de 12</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">📊 Média Mensal Entrada</div>
+      <div class="kpi-value gold">${fmt(mediaMensal)}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">🏠 Total Fixos</div>
+      <div class="kpi-value slate">${fmt(totalFixAno)}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">🛒 Total Variáveis</div>
+      <div class="kpi-value slate">${fmt(totalVarAno)}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">📈 Taxa de Poupança</div>
+      <div class="kpi-value ${pctPoupAno > 10 ? 'green' : 'red'}">${pctPoupAno.toFixed(1)}%</div>
+    </div>
+  </div>
+
+  <!-- Destaques anuais -->
+  <div class="rel-section">
+    <h3>🏆 Destaques do Ano</h3>
+    <table class="rel-table">
+      <thead><tr><th>Indicador</th><th>Mês</th><th>Valor</th></tr></thead>
+      <tbody>
+        <tr><td>✅ Melhor Saldo</td><td>${MESES_NOMES[melhorMes.mes]}</td><td class="val-pos">${fmt(melhorMes.saldo)}</td></tr>
+        <tr><td>⚠️ Menor Saldo</td><td>${MESES_NOMES[piorMes.mes]}</td><td class="${piorMes.saldo >= 0 ? 'val-pos' : 'val-neg'}">${fmt(piorMes.saldo)}</td></tr>
+        <tr><td>📊 % Comprometido</td><td>Ano todo</td><td style="color:${corProgresso(pctGastoAno)};font-weight:600">${pctGastoAno.toFixed(1)}%</td></tr>
+        <tr><td>💸 Média Gasto/Mês</td><td>—</td><td class="val-neg">${fmt(totalSaiAno / mesesData.length)}</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Evolução mensal -->
+  <div class="rel-section">
+    <h3>📅 Evolução Mensal — ${ano}</h3>
+    <table class="rel-table">
+      <thead><tr><th>Mês</th><th>Entradas</th><th>Saídas</th><th>Saldo</th><th>Situação</th><th>% Gasto</th></tr></thead>
+      <tbody>
+        ${rowsMeses}
+        <tr class="total-row">
+          <td><strong>Totais</strong></td>
+          <td class="val-pos"><strong>${fmt(totalEntAno)}</strong></td>
+          <td class="val-neg"><strong>${fmt(totalSaiAno)}</strong></td>
+          <td class="${saldoAno >= 0 ? 'val-pos' : 'val-neg'}"><strong>${fmt(saldoAno)}</strong></td>
+          <td>${badgeSituacao(saldoAno, totalEntAno)}</td>
+          <td style="color:${corProgresso(pctGastoAno)};font-weight:700">${pctGastoAno.toFixed(0)}%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  `;
+}
+
+/** Retorna o percentual numérico (sem o %) para uso em barras */
+function pctNum(v, t) { return t > 0 ? (v / t) * 100 : 0; }
+
+// ─── ATALHO ENTER ────────────────────────────────────────────
+document.querySelectorAll('#cardEntradas input, #cardEntradas select').forEach(el => {
+  el.addEventListener('keydown', e => { if (e.key === 'Enter') adicionarEntrada(); });
+});
+document.querySelectorAll('#cardFixos input, #cardFixos select').forEach(el => {
+  el.addEventListener('keydown', e => { if (e.key === 'Enter') adicionarFixo(); });
+});
+document.querySelectorAll('#cardVariaveis input, #cardVariaveis select').forEach(el => {
+  el.addEventListener('keydown', e => { if (e.key === 'Enter') adicionarVariavel(); });
+});
+
+// Fechar modal com Esc
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') fecharRelatorio();
+});
+
+// ─── INIT ────────────────────────────────────────────────────
+inicializarSeletores();
+carregarStorage();
+renderTudo();
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js')
+      .then(() => console.log('Esquilo Finanças pronto para uso offline!'))
+      .catch((err) => console.log('Erro ao registrar Service Worker:', err));
+  }
+</script>
+</body>
+</html>
