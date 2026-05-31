@@ -3,7 +3,7 @@
   "short_name": "EsquiloFin",
   "description": "Aplicativo de Gestão Financeira Pessoal",
   "start_url": "./index.html",
-  "display": "fullscreen",
+  "display": "standalone",
   "background_color": "#052e16",
   "theme_color": "#052e16",
   "orientation": "portrait",
